@@ -1,5 +1,8 @@
 # How to start a Django Project in 2020 with Fish Shell
 
+[![Imports: isort](https://img.shields.io/badge/%20imports-isort-%231674b1?style=flat&labelColor=ef8336)](https://pycqa.github.io/isort/)
+[![Code Style: black](https://img.shields.io/badge/code%20style-black-black)](https://github.com/psf/black)
+
 ## Set Python version
 
 ```fish
@@ -66,4 +69,79 @@ git commit -m "add Poetry"
 poetry add -D pre-commit
 poetry run pre-commit install
 poetry run pre-commit sample-config > .pre-commit-config.yaml
+```
+
+## Complete and Update Basic Python Hooks
+
+```fish
+touch .pre-commit-config.yaml
+
+# Append config to yaml file 
+echo "repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.4.0
+    hooks:
+      - id: check-builtin-literals
+      - id: check-toml
+      - id: check-yaml
+      - id: debug-statements
+  - repo: https://github.com/pycqa/isort
+    rev: 5.8.0
+    hooks:
+      - id: isort
+        name: isort (python)
+        args: ["--profile", "black", "--filter-files"]
+  - repo: https://github.com/ambv/black
+    rev: 20.8b1
+    hooks:
+      - id: black
+  - repo: local
+    hooks:
+      - id: flakehell
+        name: flakehell
+        entry: flakehell
+        args: [lint]
+        language: python
+        types: [python]
+" > .pre-commit-config.yaml
+
+# Update hooks
+poetry run pre-commit autoupdated
+
+# Config flakehell, isort and black in vscode
+echo '{
+  "python.pythonPath": ".venv/bin/python3.8",
+  "editor.formatOnSave": true,
+  "python.terminal.activateEnvironment": true,
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Path": ".venv/bin/flake8helled",
+  "python.formatting.provider": "black",
+  "python.formatting.blackPath": "black",
+  "[python]": {
+    /* https://github.com/Microsoft/vscode-python/issues/1883#issuecomment-395216906 */
+    "editor.formatOnPaste": false,
+  },
+  /* https://flakehell.readthedocs.io/ide.html#ide-integration */
+  "cornflakes.linter.executablePath": "flake8hell",
+  "cornflakes.linter.run": "onType",
+}
+' >> .vscode/settings.json
+git add .
+git commit -m "add and config pre-commit"
+```
+
+## Test pre-commit hooks
+
+```fish
+poetry run pre-commit run --all-files
+# Fail?
+poetry run pre-commit run --all-files
+# Ok!
+
+# commit formated and linted code
+# Remember to have the venv activated (. ./venv/bin/activate.fish)
+# or run git `poetry run git commit ...` Otherwise Flakehell won't work
+poetry run git commit -m "black re-formated"
 ```
